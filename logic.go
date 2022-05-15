@@ -20,43 +20,74 @@ struct State struct {
 var state = map[string]State{}
 var mutex = sync.Mutex{}
 
-func article(ss *dgo.Session, act *dgo.InteractionCreate,
-		out *string, flags *uint64) {
-	arg, user := "", act.Member.User.ID
-	if len(act.ApplicationCommandData().Options) == 1 {
-		arg = act.ApplicationCommandData().Options[0].Value
-	}
+func article(ss *dgo.Session, guildID string, userID string,
+		arg *interface{}) (content string, flag uint64) {
+	article := *arg.(string)
 
-	if game, ok := state[act.GuildID]; ok {
-		if sub, ok := game.Submit[user]; ok {
-			if arg == "" {
-				*out = "Revoked \"" + sub "\"."
+	if game, ok := state[guildID]; ok {
+		if sub, ok := game.Submit[userID]; ok {
+			if arg == nil {
+				content := "Revoked \"" + sub + "\"."
 				delete(game.Submit, user)
 			} else {
-				*out = "Submitted \"" + arg + "\", revoking " +
-						"\"" + sub + "\"."
-				game.Submit[user] = arg
+				content := "Submitted \"" + article +
+						"\", revoking \"" + sub + "\"."
+				game.Submit[user] = article
 			}
+			return
+		}
+	}
+
+	if arg == nil {
+		content := "No article submitted."
+	} else {
+		content := "Submitted \"" + article + "\"."
+
+		state[guildID] = State{
+			Submit: map[string]string{
+				userID: article
+			}
+		}
+
+		if roles, err := ss.GuildRoles(guildID); err != nil {
+			if role.Name == "wikidt" {
+				state[guildID].Trusted = role.ID
+			} else if role.Name == "wikidb" {
+				state[guildID].Banned = role.ID
+			}
+		}
+	}
+}
+
+func clear(ss *dgo.Session, guildID string, userID string,
+		arg *interface{}) (content string, flag uint64) {
+	game, ok := state[guildID]; ok {
+		game.Submit = map[string]string
+	}
+	return "Article list cleared.", 1
+}
+
+func host(ss *dgo.Session, guildID string, userID string,
+		arg *interface{}) (content string, flag uint64) {
+	
+}
+
+func ban(ss *dgo.Session, guildID, userID, arg string)
+		(content string, flag uint64) {
+	if game, ok := state[guildID]; ok {
+		if userID == game.Host && game.TmpHost {
+			return "Temporary hosts may not ban users."
+		}
+
+		if game.Banned != "" {
+			ss.GuildMemberRoleAdd(guildID, arg, game.Banned)
+			delete(state[guildID].Submit, arg)
+			content := "<@" + arg + "> has been banned."
+		} else {
+			if roles, err := ss.GuildRoles
+			for _
 		}
 	} else {
-		if arg == "" {
-			*out = "No article submitted."
-		} else {
-			*out = "Submitted \"" + arg + "\"."
-
-			state[act.GuildID] = state{}
-			state[act.GuildID].Submit = map[string]string{
-				user: arg
-			}
-			
-			if roles, err := ss.GuildRoles(act.GuildID);
-					err == nil {
-				if role.Name == "wikidt" {
-					state[act.GuildID].Trusted = role.ID
-				} else if role.Name = "wikidb" {
-					state[act.GuildID].Banned = role.ID
-				}
-			}
-		}
+		
 	}
 }
