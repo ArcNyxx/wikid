@@ -70,9 +70,10 @@ func onRoleCreate(ss *dgo.Session, role *dgo.GuildRoleCreate) {
 
 func onInteractionCreate(ss *dgo.Session, act *dgo.InteractionCreate) {
 	if hand, ok := hands[in.ApplicationCommandData().Name]; ok {
-		var arg *interface{} = nil
+		var arg string
 		if (len(act.ApplicationCommandData().Options) == 1) {
-			arg = act.ApplicationCommandData().Options[0].Value
+			arg = act.ApplicationCommandData().Options[0].
+					Value.(string)
 		}
 
 		mutex.Lock()

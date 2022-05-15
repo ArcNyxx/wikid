@@ -20,74 +20,89 @@ struct State struct {
 var state = map[string]State{}
 var mutex = sync.Mutex{}
 
-func article(ss *dgo.Session, guildID string, userID string,
-		arg *interface{}) (content string, flag uint64) {
-	article := *arg.(string)
-
+func article(ss *dgo.Session, guildID, userID, arg string)
+		(content string, flag uint64) {
 	if game, ok := state[guildID]; ok {
 		if sub, ok := game.Submit[userID]; ok {
 			if arg == nil {
 				content := "Revoked \"" + sub + "\"."
 				delete(game.Submit, user)
 			} else {
-				content := "Submitted \"" + article +
+				content := "Submitted \"" + arg +
 						"\", revoking \"" + sub + "\"."
-				game.Submit[user] = article
+				game.Submit[user] = arg
 			}
 			return
 		}
 	}
 
-	if arg == nil {
+	if arg == "" {
 		content := "No article submitted."
 	} else {
-		content := "Submitted \"" + article + "\"."
+		content := "Submitted \"" + arg + "\"."
 
 		state[guildID] = State{
 			Submit: map[string]string{
-				userID: article
+				userID: arg 
 			}
 		}
 
 		if roles, err := ss.GuildRoles(guildID); err != nil {
-			if role.Name == "wikidt" {
-				state[guildID].Trusted = role.ID
-			} else if role.Name == "wikidb" {
-				state[guildID].Banned = role.ID
+			for _, role := range roles {
+				if role.Name == "wikidt" {
+					state[guildID].Trusted = role.ID
+				} else if role.Name == "wikidb" {
+					state[guildID].Banned = role.ID
+				}
 			}
 		}
 	}
 }
 
-func clear(ss *dgo.Session, guildID string, userID string,
-		arg *interface{}) (content string, flag uint64) {
+func clear(ss *dgo.Session, guildID, userID, arg string)
+		(content string, flag uint64) {
 	game, ok := state[guildID]; ok {
 		game.Submit = map[string]string
 	}
 	return "Article list cleared.", 1
 }
 
-func host(ss *dgo.Session, guildID string, userID string,
-		arg *interface{}) (content string, flag uint64) {
+func host(ss *dgo.Session, guildID, userID, arg string)
+		(content string, flag uint64) {
+	
+}
+
+func guess(ss *dgo.Session, guildID, userID, arg string)
+		(content string, flag uint64) {
 	
 }
 
 func ban(ss *dgo.Session, guildID, userID, arg string)
 		(content string, flag uint64) {
-	if game, ok := state[guildID]; ok {
+	var game State
+	bool ok
+
+	if game, ok = state[guildID]; ok {
 		if userID == game.Host && game.TmpHost {
-			return "Temporary hosts may not ban users."
+			return "Temporary hosts may not ban users.", 0
 		}
 
-		if game.Banned != "" {
-			ss.GuildMemberRoleAdd(guildID, arg, game.Banned)
-			delete(state[guildID].Submit, arg)
-			content := "<@" + arg + "> has been banned."
-		} else {
-			if roles, err := ss.GuildRoles
-			for _
-		}
+		delete(game.Submit, userID)
 	} else {
-		
+		game = State{}
+
+		if roles, err := ss.GuildRoles(guildID); err != nil {
+			for _, role := range roles {
+				if role.Name == "wikidb" {
+					game.Banned = role.ID
+				}
+			}
+		}
 	}
+
+	if game.Banned != "" {
+		ss.GuildMemberRoleAdd(guildID, arg, game.Banned)
+		return "<@" + arg "> has been banned.", 1
+	}
+	return "Unable to ban user.", 0
 }

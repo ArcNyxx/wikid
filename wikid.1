@@ -1,0 +1,117 @@
+.\" wikid - guessing game
+.\" Copyright (C) 2022 ArcNyxx
+.\" see LICENCE file for licensing information
+.TH WIKID 1 wikid\-VERSION
+.SH NAME
+wikid \- guessing game
+.SH SYNOPSIS
+.SY wikid
+.YS
+.SH DESCRIPTION
+.BR wikid (1)
+is a guessing game discord bot designed to streamline gameplay and ensure
+integrity.
+.BR wikid (1)
+supports a granular permissions system to prevent griefing in large servers.
+.SH USAGE
+.SS Gameflow
+.BR wikid (1)
+has the following gameflow:
+.TQ
+1.
+Users submit articles using the
+.I article
+command.
+.TQ
+2.
+A round is started with a random article and a host selected by the
+.I host
+command.
+.TQ
+3.
+Players invent meanings for the article while only one may explain what the
+article really means, as they submitted it.
+.TQ
+4.
+The host guesses who submitted the article using the
+.I guess
+command.  The round ends and another may begin.
+.SS Commands
+.BR wikid (1)
+functions through the use of slash commands, which can be used by entering a
+forward\-slash, the command, and any parameters in a server channel with the
+bot.  A short description of each command follows:
+.TP
+.BR article\  (\  \fIarticle\fP\  )
+Submit an article to possibly be selected next round.  The
+.I article
+parameter holds the article to submit; leaving it blank will revoke a previous
+submission.  Users with the
+.I wikidb
+role may not use this command.
+.TP
+.BR clear\  ( \  )
+Clear the list of articles.  Users without the
+.I wikidt
+role may not use this command.
+.TP
+.BR host\  (\  \fIhost\fP\  )
+Host a new round.  Selects an article and chooses a host who is able to use the
+.B guess
+command to end the round.  The
+.I host
+parameter holds the user to host the round; leaving it blank will default to
+the user using the slash command.  Users without the
+.I wikidt
+role may not use this command.
+.TP
+.BR guess\  (\  \fIplayer\fP\  )
+Guess the user who submitted the article selected at the start of the round.
+Ends the round, allowing the
+.B host
+command to be run again.  Users without the
+.I wikidt
+role who are not the host selected using the
+.I host
+command at the start of the round may not use this command.  A user with the
+.I wikidt
+role may end the round early and without an ending announcement by running this
+command with themselves as the guess.
+.TP
+.BR ban\  (\  \fIplayer\fP\  )
+Ban a user from submitting articles using the
+.B article
+command, and removes an already submitted article if present.  This is the
+proper way to assign the
+.I wikidb
+role to prevent a banned user from maintaining a submitted article after being
+banned.  Users without the
+.I wikidt
+role may not use this command.
+.SS Roles
+.BR wikid (1)
+supports a granular permissions system through the use of the
+.I wikidt
+and
+.I wikidb
+roles.  A short description of each role follows:
+.TP
+.I wikidt
+When a user has the
+.I wikidt
+role, they are able to use the
+.BR host ,\  guess ,\  clear ", and " ban
+commands.  This role may be given to and removed from users through the discord
+role system; it does not need to be given through the use of a command.
+.TP
+.I wikidb
+When a user has the
+.I wikidb
+role, they are unable to use the
+.B article
+command.  This role must be given through the use of the
+.B ban
+command to prevent a banned user from maintaining a submitted article after
+being banned, though it may be removed through the discord role system.
+.SH AUTHOR
+Written by ArcNyxx.

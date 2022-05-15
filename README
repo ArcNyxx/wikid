@@ -1,0 +1,19 @@
+wikid - guessing game
+=====================
+wikid is a guessing game discord bot designed to streamline gameplay and ensure
+integrity.
+
+Requirements
+------------
+wikid requires golang and the discordgo library.
+
+Installation
+------------
+wikid comes with a Makefile and config.mk file for configurable building and
+testing.  Edit the latter to match your local setup (wikid is installed into
+the /usr/local namespace by default, you may need to modify your $PATH).
+
+wikid can be built and installed with the following command (run as root):
+
+    make clean install
+
