@@ -10,11 +10,6 @@ import (
 	dgo "github.com/bwmarrin/discordgo"
 )
 
-type NRoles struct {
-	Trusted *dgo.Role
-	Banned  *dgo.Role
-}
-
 var appID string
 
 func setCMDPerms(ss *dgo.Session, trusted, banned *dgo.Role, guildID string) {
@@ -105,6 +100,13 @@ func main() {
 		log.Fatalln("wikid: unable to get app id")
 	}
 
+	var err error
+	if cmds, err = ss.ApplicationCommandBulkOverwrite(appID,
+			"", cmds); err != nil {
+		log.Fatalln("wikid: unable to register commands")
+	}
+	log.Println("wikid: commands registered")
+
 	rand.Seed(time.Now().UnixNano())
 
 	ss.AddHandler(onGuildCreate)
@@ -119,15 +121,6 @@ func main() {
 		log.Fatalln("wikid: unable to open gateway")
 	}
 	defer ss.Close()
-
-	if len(os.Args) > 1 {
-		var err error
-		if cmds, err = ss.ApplicationCommandBulkOverwrite(appID,
-				"", cmds); err != nil {
-			log.Fatalln("wikid: unable to register commands")
-		}
-		log.Println("wikid: commands registered")
-	}
 
 	channel := make(chan os.Signal)
 	signal.Notify(channel, os.Interrupt)

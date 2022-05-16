@@ -42,7 +42,7 @@ functions through the use of slash commands, which can be used by entering a
 forward\-slash, the command, and any parameters in a server channel with the
 bot.  A short description of each command follows:
 .TP
-.BR article\  (\  \fIarticle\fP\  )
+.BR article  " ( article )"
 Submit an article to possibly be selected next round.  The
 .I article
 parameter holds the article to submit; leaving it blank will revoke a previous
@@ -50,12 +50,12 @@ submission.  Users with the
 .I wikidb
 role may not use this command.
 .TP
-.BR clear\  ( \  )
+.BR clear " ( )"
 Clear the list of articles.  Users without the
 .I wikidt
 role may not use this command.
 .TP
-.BR host\  (\  \fIhost\fP\  )
+.BR host " ( host )"
 Host a new round.  Selects an article and chooses a host who is able to use the
 .B guess
 command to end the round.  The
@@ -65,7 +65,7 @@ the user using the slash command.  Users without the
 .I wikidt
 role may not use this command.
 .TP
-.BR guess\  (\  \fIplayer\fP\  )
+.BR guess " ( player )"
 Guess the user who submitted the article selected at the start of the round.
 Ends the round, allowing the
 .B host
@@ -78,7 +78,7 @@ command at the start of the round may not use this command.  A user with the
 role may end the round early and without an ending announcement by running this
 command with themselves as the guess.
 .TP
-.BR ban\  (\  \fIplayer\fP\  )
+.BR ban " ( player )"
 Ban a user from submitting articles using the
 .B article
 command, and removes an already submitted article if present.  This is the
