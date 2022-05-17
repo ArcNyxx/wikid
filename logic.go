@@ -47,7 +47,7 @@ func article(ss *dgo.Session, guild, user, article string) (content string, flag
 			},
 		}
 
-		if roles, err := ss.GuildRoles(guild); err != nil {
+		if roles, err := ss.GuildRoles(guild); err == nil {
 			for _, role := range roles {
 				if role.Name == "wikidt" {
 					state[guild].Trusted = role.ID
@@ -134,14 +134,15 @@ func guess(ss *dgo.Session, guild, user, player string) (content string, flag bo
 
 func ban(ss *dgo.Session, guild, user, player string) (content string, flag bool) {
 	game, ok := state[guild]
-	if ok && user == game.Host && game.TmpHost {
-		return "Temporary hosts may not ban users.", false
-	} else if ok {
+	if ok {
+		if user == game.Host && game.TmpHost {
+			return "Temporary hosts may not ban users.", false
+		}
 		delete(game.Submit, user)
 	} else {
 		game = &State{}
 
-		if roles, err := ss.GuildRoles(guild); err != nil {
+		if roles, err := ss.GuildRoles(guild); err == nil {
 			for _, role := range roles {
 				if role.Name == "wikidb" {
 					game.Banned = role.ID
@@ -151,8 +152,10 @@ func ban(ss *dgo.Session, guild, user, player string) (content string, flag bool
 	}
 
 	if game.Banned != "" {
-		ss.GuildMemberRoleAdd(guild, player, game.Banned)
-		return "<@" + player + "> has been banned.", true
+		if ss.GuildMemberRoleAdd(guild, player, game.Banned) == nil {
+			return "<@" + player + "> has been banned.", true
+		}
 	}
+
 	return "Unable to ban user.", false
 }

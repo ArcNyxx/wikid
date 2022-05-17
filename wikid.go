@@ -65,9 +65,13 @@ func onRoleCreate(ss *dgo.Session, role *dgo.GuildRoleCreate) {
 }
 
 func onInteractionCreate(ss *dgo.Session, act *dgo.InteractionCreate) {
-	hands := map[string]func(ss *dgo.Session, guild, user, article string) (content string,
-			flag bool){
-		"article": article, "clear": clear, "host": host, "guess": guess, "ban": ban,
+	hands := map[string]func(ss *dgo.Session, guild, user,
+			article string) (content string, flag bool){
+		"article": article,
+		"clear": clear,
+		"host": host,
+		"guess": guess,
+		"ban": ban,
 	}
 
 	if hand, ok := hands[act.ApplicationCommandData().Name]; ok {
@@ -113,12 +117,14 @@ func main() {
 		log.Fatalln("wikid: unable to get app id")
 	}
 
-	var err error
-	if cmds, err = ss.ApplicationCommandBulkOverwrite(app,
-			"", cmds); err != nil {
-		log.Fatalln("wikid: unable to register commands")
+	if len(os.Args) == 2 && os.Args[1] == "init" {
+		var err error
+		if cmds, err = ss.ApplicationCommandBulkOverwrite(app,
+				"", cmds); err != nil {
+			log.Fatalln("wikid: unable to register commands")
+		}
+		log.Println("wikid: commands registered")
 	}
-	log.Println("wikid: commands registered")
 
 	rand.Seed(time.Now().UnixNano())
 
