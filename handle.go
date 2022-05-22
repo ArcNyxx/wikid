@@ -68,7 +68,7 @@ func onRoleDelete(ss *dgo.Session, role *dgo.GuildRoleDelete) {
 	mutex.Unlock()
 }
 
-func findRole(find string, roles []string) bool {
+func hasRole(find string, roles []string) bool {
 	for _, role := range roles {
 		if find == role {
 			return true
@@ -90,17 +90,13 @@ func onInteractionCreate(ss *dgo.Session, act *dgo.InteractionCreate) {
 			arg = act.ApplicationCommandData().Options[0].Value.(string)
 		}
 
-		if act.ApplicationCommandData().Name == "article" {
-			if state[act.GuildID].Banned == "" ||
-					!findRole(state[act.GuildID].Banned, member.Roles) {
-				content, flags = article(ss, act.GuildID, act.Member.User.ID, arg)
-			}
-		} else {
-			if state[act.GuildID].Trusted != "" &&
-					findRole(state[act.GuildID].Trusted, member.Roles) {
-				content, flags = handles[act.ApplicationCommandData().Name](ss,
-						act.GuildID, act.Member.User.ID, arg)
-			}
+		if act.ApplicationCommandData().Name == "article" &&
+				!hasRole(state[act.GuildID].Banned, member.Roles) {
+			content, flags = article(ss, act.GuildID, act.Member.User.ID, arg)
+		} else if act.ApplicationCommandData().Name != "article" &&
+				hasRole(state[act.GuildID].Trusted, member.Roles) {
+			content, flags = handles[act.ApplicationCommandData().Name](ss,
+					act.GuildID, act.Member.User.ID, arg)
 		}
 	}
 	mutex.Unlock()

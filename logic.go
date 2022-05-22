@@ -62,6 +62,7 @@ func host(ss *dgo.Session, guild, user, host string) (content string, hidden uin
 		}
 	}
 
+	// TODO: check whether user already has wikidt role to prevent :trolling:
 	state[guild].Host, state[guild].TmpHost = host, host != user
 	if host != user {
 		ss.GuildMemberRoleAdd(guild, host, state[guild].Trusted)
@@ -71,13 +72,14 @@ func host(ss *dgo.Session, guild, user, host string) (content string, hidden uin
 	for player, article := range state[guild].Submit {
 		if count == ran {
 			state[guild].Player = player
+			delete(state[guild].Submit, player)
 			return "A new round of wikid has begun! The article is \"" +
 					article + "\", and the host is <@" +
 					host + ">.", 0
 		}
 		count++
 	}
-	return // UNREACHED
+	return
 }
 
 func guess(ss *dgo.Session, guild, user, player string) (content string, hidden uint64) {
@@ -101,7 +103,7 @@ func guess(ss *dgo.Session, guild, user, player string) (content string, hidden 
 		ss.GuildMemberRoleRemove(guild, state[guild].Host, state[guild].Trusted)
 	}
 	state[guild].Host, state[guild].Player = "", ""
-	return content, 1
+	return content, 0
 }
 
 func ban(ss *dgo.Session, guild, user, player string) (content string, hidden uint64) {
@@ -111,7 +113,7 @@ func ban(ss *dgo.Session, guild, user, player string) (content string, hidden ui
 
 	delete(state[guild].Submit, player)
 	if ss.GuildMemberRoleAdd(guild, player, state[guild].Banned) == nil {
-		return "<@" + player + "> has been banned.", 1
+		return "<@" + player + "> has been banned.", 0
 	}
 	return "Unable to ban <@" + player + ">.", 1
 }
