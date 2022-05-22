@@ -6,7 +6,7 @@
 
 include config.mk
 
-SRC = command.go logic.go wikid.go
+SRC = command.go handle.go logic.go wikid.go
 
 all: wikid
 

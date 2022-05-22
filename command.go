@@ -2,10 +2,6 @@ package main
 
 import dgo "github.com/bwmarrin/discordgo"
 
-func makeBool(data bool) *bool {
-	return &data
-}
-
 var cmds = []*dgo.ApplicationCommand{
 	{
 		Name: "article",
@@ -14,15 +10,14 @@ var cmds = []*dgo.ApplicationCommand{
 			{
 				Type: dgo.ApplicationCommandOptionString,
 				Name: "article",
-				Description: "The article to submit. Supplying no article will " +
-						"revoke a previous submission.",
+				Description: "The article to submit. Supplying no article " +
+						"will revoke a previous submission.",
 			},
 		},
 	},
 	{
 		Name: "clear",
 		Description: "Clear the list of articles.",
-		DefaultPermission: makeBool(false),
 	},
 	{
 		Name: "host",
@@ -31,26 +26,24 @@ var cmds = []*dgo.ApplicationCommand{
 			{
 				Type: dgo.ApplicationCommandOptionUser,
 				Name: "host",
-				Description: "The user to host the round. Supplying no user " +
-						"will default to self.",
+				Description: "The user to host the round. Supplying " +
+						"no user will default to self.",
 			},
 		},
-		DefaultPermission: makeBool(false),
 	},
 	{
 		Name: "guess",
-		Description: "End a round of wikid by guessing who submitted the randomly " +
-				"selected article.",
+		Description: "End a round of wikid by guessing who " +
+				"submitted the randomly selected article.",
 		Options: []*dgo.ApplicationCommandOption{
 			{
 				Type: dgo.ApplicationCommandOptionUser,
 				Name: "player",
-				Description: "The player who submitted the article. Enter " +
-						"yourself to end the round early.",
+				Description: "The player who submitted the article." +
+						"Enter yourself to end the round early.",
 				Required: true,
 			},
 		},
-		DefaultPermission: makeBool(false),
 	},
 	{
 		Name: "ban",
@@ -63,6 +56,5 @@ var cmds = []*dgo.ApplicationCommand{
 				Required: true,
 			},
 		},
-		DefaultPermission: makeBool(false),
 	},
 }
