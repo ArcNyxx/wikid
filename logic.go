@@ -44,10 +44,14 @@ func clear(ss *dgo.Session, guild, user, null string) (content string, hidden ui
 	}
 
 	state[guild].Submit = map[string]string{}
-	return "Article list cleared.", 1
+	return "Article list cleared.", 0
 }
 
 func host(ss *dgo.Session, guild, user, host string) (content string, hidden uint64) {
+	if host == "" {
+		host = user
+	}
+
 	if len(state[guild].Submit) == 0 {
 		return "No articles have been submitted.", 1
 	} else if state[guild].Host != "" {
@@ -62,22 +66,29 @@ func host(ss *dgo.Session, guild, user, host string) (content string, hidden uin
 		}
 	}
 
-	// TODO: check whether user already has wikidt role to prevent :trolling:
-	state[guild].Host, state[guild].TmpHost = host, host != user
 	if host != user {
-		ss.GuildMemberRoleAdd(guild, host, state[guild].Trusted)
-	}
+		mem, err := ss.GuildMember(guild, host)
+		if err != nil {
+			return "Unable to make host <@" + host + ">.", 1
+		}
 
-	count, ran := 0, rand.Intn(len(state[guild].Submit))
+		if !hasRole(state[guild].Trusted, mem.Roles) {
+			state[guild].TmpHost = true
+			ss.GuildMemberRoleAdd(guild, host, state[guild].Trusted)
+		}
+	}
+	state[guild].Host = host
+
+	count := rand.Intn(len(state[guild].Submit))
 	for player, article := range state[guild].Submit {
-		if count == ran {
+		if count == 0 {
 			state[guild].Player = player
 			delete(state[guild].Submit, player)
 			return "A new round of wikid has begun! The article is \"" +
 					article + "\", and the host is <@" +
 					host + ">.", 0
 		}
-		count++
+		count--
 	}
 	return
 }
@@ -100,14 +111,15 @@ func guess(ss *dgo.Session, guild, user, player string) (content string, hidden 
 	}
 
 	if state[guild].TmpHost {
+		state[guild].TmpHost = false
 		ss.GuildMemberRoleRemove(guild, state[guild].Host, state[guild].Trusted)
 	}
 	state[guild].Host, state[guild].Player = "", ""
-	return content, 0
+	return
 }
 
 func ban(ss *dgo.Session, guild, user, player string) (content string, hidden uint64) {
-	if user == state[guild].Host && state[guild].TmpHost {
+	if state[guild].Host == user && state[guild].TmpHost {
 		return "Temporary hosts may not ban users.", 1
 	}
 

@@ -24,8 +24,7 @@ func main() {
 	if len(os.Args) == 2 && os.Args[1] == "init" {
 		if app, ok := os.LookupEnv("DISAPPID"); !ok {
 			log.Fatalln("wikid: unable to get app id")
-		} else if _, err := ss.ApplicationCommandBulkOverwrite(app, "", cmds);
-				err != nil {
+		} else if _, err := ss.ApplicationCommandBulkOverwrite(app, "", cmds); err != nil {
 			log.Fatalln("wikid: unable to register commands")
 		}
 		log.Println("wikid: commands registered")
@@ -34,6 +33,8 @@ func main() {
 	ss.AddHandler(onReady)
 	ss.AddHandler(onGuildCreate)
 	ss.AddHandler(onRoleCreate)
+	ss.AddHandler(onRoleUpdate)
+	ss.AddHandler(onRoleDelete)
 	ss.AddHandler(onInteractionCreate)
 
 	rand.Seed(time.Now().UnixNano())

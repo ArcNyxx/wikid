@@ -79,24 +79,23 @@ func hasRole(find string, roles []string) bool {
 
 func onInteractionCreate(ss *dgo.Session, act *dgo.InteractionCreate) {
 	content, flags := "You do not have adequate permissions.", uint64(1)
-	handles := map[string]func(*dgo.Session, string, string, string) (string, uint64){
+	handle := map[string]func(*dgo.Session, string, string, string) (string, uint64){
 		"clear": clear, "host": host, "guess": guess, "ban": ban,
 	}
 
 	mutex.Lock()
-	if member, err := ss.GuildMember(act.GuildID, act.Member.User.ID); err == nil {
+	if mem, err := ss.GuildMember(act.GuildID, act.Member.User.ID); err == nil {
+		data := act.ApplicationCommandData()
+
 		var arg string
-		if len(act.ApplicationCommandData().Options) == 1 {
-			arg = act.ApplicationCommandData().Options[0].Value.(string)
+		if len(data.Options) == 1 {
+			arg = data.Options[0].Value.(string)
 		}
 
-		if act.ApplicationCommandData().Name == "article" &&
-				!hasRole(state[act.GuildID].Banned, member.Roles) {
+		if data.Name == "article" && !hasRole(state[act.GuildID].Banned, mem.Roles) {
 			content, flags = article(ss, act.GuildID, act.Member.User.ID, arg)
-		} else if act.ApplicationCommandData().Name != "article" &&
-				hasRole(state[act.GuildID].Trusted, member.Roles) {
-			content, flags = handles[act.ApplicationCommandData().Name](ss,
-					act.GuildID, act.Member.User.ID, arg)
+		} else if data.Name != "article" && hasRole(state[act.GuildID].Trusted, mem.Roles) {
+			content, flags = handle[data.Name](ss, act.GuildID, act.Member.User.ID, arg)
 		}
 	}
 	mutex.Unlock()
